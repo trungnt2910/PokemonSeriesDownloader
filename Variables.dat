@@ -1,0 +1,15 @@
+# Enter the index page of the Pokemon site here.
+
+INDEX_PAGE=https://blisseyhusband.in/pokemon-the-series-sun-moon-ultra-legends/
+
+#Enter the prefix of the URL of each episode here.
+#Example: Episode url: example.com/episode-1-some-name
+#=> PREFIX=example.com
+
+PREFIX=https://blisseyhusband.in/
+
+#Enter the folder where you keep your episodes.
+#This path will be used if you don't manually enter a path.
+#In future versions the app will also check this path for missing episodes in Update Mode.
+
+DOWNLOAD_DIR=C:\Pokemon

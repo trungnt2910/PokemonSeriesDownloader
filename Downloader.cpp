@@ -17,6 +17,7 @@ void findAndReplaceAll(string & data, const string & toSearch, const string & re
 		pos =data.find(toSearch, pos + replaceStr.size());
 	}
 }
+
 string StandardizePath(string path)
 {
 	if (path[0] == '\"') path.erase(path.begin(), path.begin() + 1);
@@ -24,6 +25,7 @@ string StandardizePath(string path)
 	if (path.back() == '\\') path.pop_back();
 	return path;
 }
+
 void PrepareDirectory(const string & fullpath)
 {
 	int i = 0;
@@ -38,6 +40,7 @@ void PrepareDirectory(const string & fullpath)
 		j = i;
 	}
 }
+
 string purifyLink(string link)
 {
 	for (int i = 0; i<link.size(); ++i)
@@ -61,6 +64,14 @@ string purifyLink(string link)
 	}
 	return link;
 }
+
+//This function currently supports the old elite-video-player
+//Blissey's husband is using. However, he is known to have been
+//testing with cloudfront streaming (Episode 48). This involves more complicated
+//link fetching as well as using ffmpeg to get valid data from m3u8 files.
+
+//Fetching from cloudfront will be implemented later if Blissey's husband
+//adopt this for his site.
 string process(string & element)
 {
 	findAndReplaceAll(element, "&#8221;", "\"");
@@ -72,6 +83,7 @@ string process(string & element)
 	string result = string(element.begin() + i, element.begin() + j);
 	return result; 
 }
+
 string processfile(const string & path)
 {
 	ifstream fin;
@@ -94,6 +106,7 @@ string processfile(const string & path)
 		fin.close();
 	return data;
 }
+
 int Download(const vector<string> & URL, const vector<string> & name, const int begin, const int end, string & dlpath)
 {
 	int SuccessCount = 0;
@@ -119,6 +132,7 @@ int Download(const vector<string> & URL, const vector<string> & name, const int 
 	}
 	return SuccessCount;
 }
+
 int Download(const vector<string> & URL, const vector<string> & name, const vector<int> & queue, const string dlpath)
 {
 	int SuccessCount = 0;
@@ -142,16 +156,51 @@ int Download(const vector<string> & URL, const vector<string> & name, const vect
 	}
 	return SuccessCount;
 }
+
 vector<string> GET_VARIABLES()
 {
-	//implement later:
+	//Coming soon: configure variables to support downloading on other Pokemon sites.
+	map<string, int> flags;
 	//data[0]: Index page of the series.
-	//data[1]: Prefix of each episode.
-	return {
-		"https://blisseyhusband.in/pokemon-the-series-sun-moon-ultra-legends/",
-		"https://blisseyhusband.in/"
-	};
+	flags.insert({"INDEX_PAGE", 0});
+	//data[1]: Prefix of each episode. 
+	// (For the purpose of filtering episode links from ads and trash).
+	flags.insert({"PREFIX", 1});
+	//data[2]: Default download path.
+	flags.insert({"DOWNLOAD_DIR", 2});
+	
+	ifstream data("Variables.dat");
+	string current_line;
+	
+	vector<string> return_data(flags.size());
+	
+	while (data)
+	{
+		getline(data, current_line);
+		//Ignore empty lines
+		if (!current_line.size()) continue;
+		//Like common script files, lines starting with '#' are ignored.
+		if (current_line[0] == '#') continue;
+		//Get the flag name and data
+		int i = current_line.find("=");
+		string flag_name = string(current_line.begin(), current_line.begin() + i);
+		string flag_data = string(current_line.begin() + i + 1, current_line.end());
+		//And clean them up.
+		while (isspace(flag_name.back() == ' ')) flag_name.pop_back();
+		while (isspace(flag_data.back() == ' ')) flag_data.pop_back();
+		i = 0;
+		while (isspace(flag_name[i])) ++i;
+		flag_name = string(flag_name.begin() + i, flag_name.end());
+		i = 0;
+		while (isspace(flag_data[i])) ++i;
+		flag_data = string(flag_data.begin() + i, flag_data.end());
+		
+		return_data[flags[flag_name]] = flag_data;
+	}
+	
+	return return_data;
 }
+
 int main()
 {
 	
@@ -159,6 +208,8 @@ int main()
 	
 	//Gets our varibles in Variables.dat file.
 	vector<string> data = GET_VARIABLES();
+	
+	cout << data[0] << endl <<data[1] << endl << data[2] << endl;
 	
 	string appdata = getenv("APPDATA");
 	string tempfolder = appdata + "\\PokemonDownloader\\";
@@ -208,7 +259,6 @@ int main()
 			j = i;
 			while (current[j] != '\"') ++j;
 			links.push_back(string(current.begin() + i, current.begin() + j));
-//			getline(html, current);
 			i = current.find("Countdown");
 			if (i != string::npos) //Coming soon!
 			{
@@ -231,7 +281,6 @@ int main()
 			cout << links.back() << endl;
 			cout << "Name:\n";
 			j = i;
-		//	if (count > 47) cout << "WTF?0;";
 			while (current[j] != '<') ++j;
 			string temp = string(current.begin() + i, current.begin() + j);
 			static int find_colon;
@@ -283,8 +332,10 @@ int main()
 	if (!cin) cin.clear();
 	while (cin.get() != '\n') continue;
 	cout << "Enter the path of the downloaded files:\n";
+	cout << "(Blank line to use default download path).\n";
 	string dlpath;
 	getline(cin, dlpath);
+	if (!dlpath.size()) dlpath = data[2];
 	count = 0;
 	switch (choice)
 	{
