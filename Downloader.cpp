@@ -3,10 +3,20 @@
 using namespace std;
 #define ullong unsigned long long
 #define llong long long
-#define problemname ""
-//ifstream fin(problemname".INP");
-//ofstream fout(problemname".OUT");
 ifstream opener;
+void findAndReplaceAll(string & data, const string & toSearch, const string & replaceStr)
+{
+	// Get the first occurrence
+	size_t pos = data.find(toSearch);
+	// Repeat till end is reached
+	while(pos != string::npos)
+	{
+		// Replace this occurrence of Sub String
+		data.replace(pos, toSearch.size(), replaceStr);
+		// Get the next occurrence from the current position
+		pos =data.find(toSearch, pos + replaceStr.size());
+	}
+}
 string StandardizePath(string path)
 {
 	if (path[0] == '\"') path.erase(path.begin(), path.begin() + 1);
@@ -24,11 +34,9 @@ void PrepareDirectory(const string & fullpath)
 		while (fullpath[j] != '\\')
 		++j;
 		CreateDirectory(string(fullpath.begin(), fullpath.begin()+j).c_str(), nullptr);
-	//	cerr << "created dir " << string(fullpath.begin(), fullpath.begin()+j).c_str() << endl;
 		i = j + 1;
 		j = i;
 	}
-//	cerr << "finished.\n"; 
 }
 string purifyLink(string link)
 {
@@ -40,26 +48,28 @@ string purifyLink(string link)
 			--i;
 		}		
 	}
+	//Removes the stupid escape sequence
+	if (link.back() == ';' && isdigit(*(link.end() - 2)))
+	{
+		while (link.back() != '&') link.pop_back();
+		link.pop_back();
+	}
+	//Removes stupid '"' character
+	if (link.back() == '"')
+	{
+		link.pop_back();
+	}
 	return link;
 }
 string process(string & element)
 {
-	int i = element.find("https:");
+	findAndReplaceAll(element, "&#8221;", "\"");
+	int i = element.find("mp4HD");
+	i = element.find(":", i);
+	i += 2;
 	int j = i;
-	while ((element[j] != ';')) ++j;
+	while ((element[j] != ',')) ++j;
 	string result = string(element.begin() + i, element.begin() + j);
-	if (string(result.end() - 4, result.end()) == "#038")
-	{
-		result = string(result.begin(), result.end() - 4);
-		i = j + 1;
-		j = i;
-		while ((element[j] != ';')) ++j;
-		result = result + string(element.begin() + i, element.begin() + j - 4);
-		i = j + 1;
-		j = i;
-		while ((element[j] != ';')) ++j;
-		result = result + string(element.begin() + i, element.begin() + j - 4);
-	}
 	return result; 
 }
 string processfile(const string & path)
@@ -71,9 +81,13 @@ string processfile(const string & path)
 		while (current_line.find("<div class=\"Elite_video_player\"") == -1)
 		{
 			getline(fin, current_line);
+			if (fin.eof()) //TODO: implement exception throwing.
+			{
+				cout << "Failed to get link.\n";
+				return "INVALID FILE.";
+			}
 		}
 		string data = process(current_line);
-	//	cout << current_line << endl << endl;
 		cout << "Extracted link:\n\n";
 		data = purifyLink(data);
 		cout << data << endl << endl;
@@ -193,14 +207,14 @@ int main()
 			static int j;
 			j = i;
 			while (current[j] != '\"') ++j;
-			cout << "Link:\n";
 			links.push_back(string(current.begin() + i, current.begin() + j));
-			cout << links.back() << endl;
 //			getline(html, current);
 			i = current.find("Countdown");
-			if (i != string::npos)
+			if (i != string::npos) //Coming soon!
 			{
-				cout << "Episode coming soon!";
+				cout << "Link:\n";
+				cout << links.back() << endl;
+				cout << "Episode coming soon!\n";
 				links.pop_back();
 				--count;
 				break;
@@ -213,19 +227,24 @@ int main()
 				--count;
 				continue;
 			}
+			cout << "Link:\n";
+			cout << links.back() << endl;
 			cout << "Name:\n";
 			j = i;
-			if (count > 47) cout << "WTF?0;";
+		//	if (count > 47) cout << "WTF?0;";
 			while (current[j] != '<') ++j;
 			string temp = string(current.begin() + i, current.begin() + j);
 			static int find_colon;
 			find_colon = temp.find(":");
-			static string replace;
-			replace = "";
-			if (!isspace(temp[find_colon - 1])) replace += ' ';
-			replace += '-';
-			if (!isspace(temp[find_colon + 1])) replace += ' ';
-			temp.replace(temp.begin() + find_colon, temp.begin() + find_colon + 1, replace);
+			if (find_colon != string::npos)
+			{
+				static string replace;
+				replace = "";
+				if (!isspace(temp[find_colon - 1])) replace += ' ';
+				replace += '-';
+				if (!isspace(temp[find_colon + 1])) replace += ' ';
+				temp.replace(temp.begin() + find_colon, temp.begin() + find_colon + 1, replace);
+			}
 			while (temp.back() == ' ') temp.pop_back();
 			temp += ".mp4";
 			names.push_back(temp);
@@ -248,9 +267,9 @@ int main()
 		URLDownloadToFile(nullptr, links[i].c_str(), (tempfolder + episodename).c_str(), 0, nullptr);
 		cout << "Getting direct URL...\n";
 		string directURL = processfile(tempfolder + episodename);
-		cout << "Done.\n";
+		cout << "Done.\n\n";
 		direct.push_back(directURL);
-		++count;
+		if (directURL != "INVALID FILE.") ++count;
 	}
 	cout << "\n--------------------------------------------\n";
 	cout << count << " episodes ready to download.\n";
