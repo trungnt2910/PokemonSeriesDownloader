@@ -6,8 +6,6 @@
 #include <string>
 #include <vector>
 
-#include <Windows.h>
-
 //Borrow a few tools from the standart library
 using std::cin;
 using std::cout;

@@ -1,3 +1,4 @@
-Downloader.exe
 *.exe
 *.o
+debug
+debug/

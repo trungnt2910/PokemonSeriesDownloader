@@ -1,3 +1,4 @@
+#include "download_backend.h"
 #include "downloader.h"
 #include "helper.h"
 
@@ -15,18 +16,9 @@ int16_t Download(const vector<string> & URL, const vector<string> & name, const 
 	for (int16_t i = begin; i <= end; ++i)
 	{
 		cout << "Downloading " << name[i] << endl;
-		URLDownloadToFile(nullptr, URL[i].c_str(), (dlpath + "\\" + name[i]).c_str(), 0, nullptr);
-		static bool status;
-		status = checkExistence((dlpath + "\\" + name[i]).c_str());
-		if (!status)
-		{
-			cout << "Failed.\n";
-		}
-		else 
-		{
-			cout << "Done.\n";
-			++SuccessCount;
-		}
+		static int32_t status;
+		status = DownloadtoFile(URL[i], dlpath + '\\' + name[i]);
+		if (!status) ++SuccessCount;
 	}
 	return SuccessCount;
 }
@@ -38,18 +30,9 @@ int16_t Download(const vector<string> & URL, const vector<string> & name, const 
 	for (const auto & i : queue)
 	{
 		cout << "Downloading " << name[i] << endl;
-		URLDownloadToFile(nullptr, URL[i].c_str(), (dlpath + "\\" + name[i]).c_str(), 0, nullptr);
-		static bool status;
-		status = checkExistence((dlpath + "\\" + name[i]).c_str());
-		if (!status)
-		{
-			cout << "Failed.\n";
-		}
-		else
-		{
-			cout << "Done.\n";
-			++SuccessCount;
-		}
+		static int32_t status;
+		status = DownloadtoFile(URL[i], dlpath + '\\' + name[i]);
+		if (!status) ++SuccessCount;
 	}
 	return SuccessCount;
 }

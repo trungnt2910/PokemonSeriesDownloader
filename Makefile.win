@@ -4,9 +4,9 @@
 CPP      = g++.exe
 CC       = gcc.exe
 WINDRES  = windres.exe
-OBJ      = main.o downloader.o fetcher.o helper.o
-LINKOBJ  = main.o downloader.o fetcher.o helper.o
-LIBS     = -L"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib" -L"C:/Program Files (x86)/Dev-Cpp/MinGW64/x86_64-w64-mingw32/lib" -static-libgcc -lgdi32 -lurlmon
+OBJ      = main.o downloader.o fetcher.o helper.o download_backend.o
+LINKOBJ  = main.o downloader.o fetcher.o helper.o download_backend.o
+LIBS     = -L"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib" -L"C:/Program Files (x86)/Dev-Cpp/MinGW64/x86_64-w64-mingw32/lib" -static-libgcc -lgdi32 -lurlmon -luuid -lwininet
 INCS     = -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/9.2.0/include"
 CXXINCS  = -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/9.2.0/include"
 BIN      = PokemonSeriesDownloader.exe
@@ -35,3 +35,6 @@ fetcher.o: fetcher.cpp
 
 helper.o: helper.cpp
 	$(CPP) -c helper.cpp -o helper.o $(CXXFLAGS)
+
+download_backend.o: download_backend.cpp
+	$(CPP) -c download_backend.cpp -o download_backend.o $(CXXFLAGS)
