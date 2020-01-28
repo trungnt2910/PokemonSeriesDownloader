@@ -70,6 +70,9 @@ void downloadInterface()
 	string dlpath;
 	getline(cin, dlpath);
 	if (!dlpath.size()) dlpath = data[2];
+	//Creates the directory (instead of throwing an error) if the
+	//download path does not exist.
+	PrepareDirectory(dlpath);
 	int16_t count = 0;
 	switch (choice)
 	{
