@@ -16,11 +16,11 @@ extern vector<string> data;
 string process(string & element)
 {
 	element = findAndReplaceAll(element, "&#8221;", "\"");
+	element = findAndReplaceAll(element, "&#8243;", "\"");
 	int16_t i = element.find("mp4HD");
 	i = element.find(":", i);
 	i += 2;
-	int16_t j = i;
-	while ((element[j] != ',')) ++j;
+	int16_t j = element.find("\",", i+1);
 	string result = string(element.begin() + i, element.begin() + j);
 	return result; 
 }
