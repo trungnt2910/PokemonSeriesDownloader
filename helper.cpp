@@ -25,12 +25,12 @@ string StandardizePath(string path)
 
 void PrepareDirectory(const string & fullpath)
 {
-	int16_t i = 0;
+	size_t i = 0;
 	if (fullpath[1] == ':')	i = 3; //skips drive letter;
-	int16_t j = i;
+	size_t j = i;
 	while (i < fullpath.size())
 	{
-		while (fullpath[j] != '\\')
+		while ((fullpath[j] != '\\')&&(j < fullpath.size()))
 		++j;
 		CreateDirectory(string(fullpath.begin(), fullpath.begin()+j).c_str(), nullptr);
 		i = j + 1;
