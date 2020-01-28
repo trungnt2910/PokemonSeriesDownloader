@@ -15,12 +15,23 @@ extern vector<string> data;
 
 string process(string & element)
 {
+	//Site-specific variables, in future releases will be read from
+	//Variables.dat file.
+	static const string link_token = "mp4HD";
+	static const string link_prefix = ":";
+	static const size_t prefix_to_content = 2;
+	static const string link_suffix = "\",";
+	static const size_t suffix_to_content = 0;
+	
+	//Replace stupid fancy HTML escape codes for fancy quotation marks with
+	//normal ones.
 	element = findAndReplaceAll(element, "&#8221;", "\"");
 	element = findAndReplaceAll(element, "&#8243;", "\"");
-	int16_t i = element.find("mp4HD");
-	i = element.find(":", i);
-	i += 2;
-	int16_t j = element.find("\",", i+1);
+	int16_t i = element.find(link_token);
+	i = element.find(link_prefix, i);
+	i += prefix_to_content;
+	int16_t j = element.find(link_suffix, i+1);
+	j -= suffix_to_content;
 	string result = string(element.begin() + i, element.begin() + j);
 	return result; 
 }
@@ -83,7 +94,7 @@ void processIndexPage(const string & pagename, const string & tempfolder)
 			i = current.find("Episode");
 			if (i == string::npos) // NOT a link to an episode
 			{
-				cout << "Invalid link.\n";
+			//	cout << "Invalid link."; //Shuts the app up.
 				links.pop_back();
 				--count;
 				continue;
@@ -132,5 +143,5 @@ void processIndexPage(const string & pagename, const string & tempfolder)
 		if (directURL != "INVALID FILE.") ++count;
 	}
 	cout << "\n--------------------------------------------\n";
-	cout << count << " episodes ready to download.\n\nS";
+	cout << count << " episodes ready to download.\n\n";
 }

@@ -49,5 +49,8 @@ int main(int argc, char** argv)
 	
 	downloadInterface();
 	
+	cout << "Press any key to exit...\n";
+	cin.get();
+	
 	return 0;
 }
