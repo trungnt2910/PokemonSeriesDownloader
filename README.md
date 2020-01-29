@@ -30,6 +30,7 @@ That's all!
 
 - Automated download of Pokémon episodes.
 - Download path configuration.
+- Progress bar showing current episode's download status.
 
 ### Coming soon:
 
