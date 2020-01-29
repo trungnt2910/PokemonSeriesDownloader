@@ -1,4 +1,22 @@
+//helper.cpp -- Helper functions for PokemonSeriesDownloader
+
 #include "helper.h"
+
+#include <cctype>
+#include <fstream>
+#include <map>
+#include <string>
+#include <vector>
+
+#define QUERYCONTEXT void*
+
+#include <Windows.h>
+
+//Borrow a few tools from the standard library
+using std::ifstream;
+using std::isdigit;
+using std::isspace;
+using std::map;
 
 string findAndReplaceAll(string data, const string & toSearch, const string & replaceStr)
 {

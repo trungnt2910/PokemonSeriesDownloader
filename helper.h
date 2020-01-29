@@ -2,21 +2,13 @@
 #ifndef __POKEMON__HELPER__H__
 #define __POKEMON__HELPER__H__
 
-#include <cctype>
-#include <fstream>
-#include <map>
-#include <string>
+//Forward declarations...
+#include <iosfwd>
+
+//Cannot forward declare vector :(
 #include <vector>
 
-#define QUERYCONTEXT void*
-
-#include <Windows.h>
-
-//Borrow a few tools from the standard library
-using std::ifstream;
-using std::isdigit;
-using std::isspace;
-using std::map;
+//Borrow a few tools from the standard library...
 using std::string;
 using std::vector;
 
@@ -27,4 +19,4 @@ void PrepareDirectory(const string & fullpath);
 std::vector<string> GET_VARIABLES();
 bool checkExistence(const string & filePath);
 
-#endif
+#endif //__POKEMON__HELPER__H__

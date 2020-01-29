@@ -1,3 +1,10 @@
+//main.cpp -- main() function of PokemonSeriesDownloader. Initializes resources, and call other interfaces.
+
+//A macro included before Windows.h, else MinGW will complain.
+#define QUERYCONTEXT void*
+
+#include <Windows.h> //For CreateDirectory
+
 #include <iostream>
 
 #include "downloader.h"

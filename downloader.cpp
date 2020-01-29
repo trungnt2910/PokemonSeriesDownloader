@@ -1,6 +1,22 @@
-#include "download_backend.h"
+//downloader.cpp -- The functions that provides the user interface for downloading fetched episodes.
+
 #include "downloader.h"
+
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <vector>
+
+#include "download_backend.h"
 #include "helper.h"
+
+//Borrow a few tools from the standard library
+using std::cin;
+using std::cout;
+using std::endl;
+using std::ifstream;
+using std::string;
+using std::vector;
 
 extern vector<string> links;
 extern vector<string> names;

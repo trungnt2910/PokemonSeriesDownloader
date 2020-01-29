@@ -1,19 +1,8 @@
+//downloader.h -- The functions that provides the user interface for downloading fetched episodes.
+
 #ifndef __POKEMON__DOWNLOADER__H__
 #define __POEKMON__DOWNLOADER__H__
 
-#include <fstream>
-#include <iostream>
-#include <string>
-#include <vector>
-
-//Borrow a few tools from the standart library
-using std::cin;
-using std::cout;
-using std::endl;
-using std::ifstream;
-using std::string;
-using std::vector;
-
 void downloadInterface();
 
-#endif
+#endif //__POEKMON__DOWNLOADER__H__

@@ -1,5 +1,5 @@
-#include "fetcher.h"
-#include "helper.h"
+//fetcher.cpp -- Link extraction functions for PokemonSeriesDownloader
+
 //These functions currently support the old elite-video-player
 //Blissey's husband is using. However, he is known to have been
 //testing with cloudfront streaming (Episode 48). This involves more complicated
@@ -7,6 +7,28 @@
 
 //Fetching from cloudfront will be implemented later if Blissey's husband
 //adopt this for his site.
+
+#include "fetcher.h"
+
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <vector>
+
+//A macro included before Windows.h, else MinGW will complain.
+#define QUERYCONTEXT void*
+
+#include <Windows.h> //For URLDownloadtoFile
+
+#include "helper.h"
+
+//Borrow a few tools from the standard library
+using std::cout;
+using std::endl;
+using std::ifstream;
+using std::stringstream;
+using std::vector;
 
 extern vector<string> links;
 extern vector<string> names;

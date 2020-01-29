@@ -1,4 +1,51 @@
+//download_backend.cpp -- Implementation of the function that does our downloading work...
 #include "download_backend.h"
+
+#include <iostream>
+#include <iomanip>
+#include <string>
+#include <map>
+
+//A macro included before Windows.h, else MinGW will complain.
+#define QUERYCONTEXT void*
+
+#include <Windows.h>
+
+#include <urlmon.h>
+#include <wininet.h>
+
+//Borrow a few tools from the standard library
+using std::cout;
+using std::endl;
+using std::map;
+
+const char * DownloadError(const HRESULT hr)
+{
+	static const map<HRESULT, const char *> error_names =
+	{
+		{0x00000000, "The download completed successfully."},
+		{0x80004004, "The download has been aborted."},
+		{0x80004005, "Unspecified failure."},
+		{0x8000FFFF, "Unexpected failure."},
+		{0x80070005, "Access Denied. Blissey's husband does not want to share this video :("},
+		{0x8007000E, "Out of memory. Please clean up your disk before continuing."},
+		{0x800C0004, "Failed to connect to the Internet. Please check your Internet connection and try again."},
+		{0x800C0005, "File not found. Please check your Internet connection and try again."},
+		{0x800C0008, "The download of this episode has failed."},
+		{0x800C000B, "The Internet connection has timed out."}
+	};
+	
+	try
+	{
+		return error_names.at(hr);
+	}
+	//Unknown error
+	catch (const std::out_of_range & a)
+	{
+		cout << "Exit code: 0x" << std::hex << hr << endl;
+		return "Failure because of an unknown reason.";
+	}
+}
 
 void LoadBar(unsigned curr_val, unsigned max_val, unsigned bar_width = 20)
 {
@@ -193,15 +240,10 @@ int32_t DownloadtoFile(const string & URL, const string & FilePath, const bool v
         filePath,
         0,      // Reserved. Must be set to 0.
         pBindStatusCallback );
-    
-    if(SUCCEEDED(hr))
-    {
-        cout << ("\nSuccessfully downloaded.\n") << endl;
-    }
-    else
-    {
-        cout << ("\nAn error occured.\nError code = 0x") << std::hex << hr << endl;
-    }
+
+	endl(cout); //Flush our buffers.
+	
+	cout << DownloadError(hr) << "\n" << endl;
 
     // should usually call Release on a COM object, but this one (callbackHandler)
     // was created on the stack so is going out of scope now and will die anyway.
