@@ -6,9 +6,6 @@
 #include <string>
 #include <map>
 
-//A macro included before Windows.h, else MinGW will complain.
-#define QUERYCONTEXT void*
-
 #include <Windows.h>
 
 #include <urlmon.h>

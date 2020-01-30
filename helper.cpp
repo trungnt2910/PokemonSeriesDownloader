@@ -8,8 +8,6 @@
 #include <string>
 #include <vector>
 
-#define QUERYCONTEXT void*
-
 #include <Windows.h>
 
 //Borrow a few tools from the standard library

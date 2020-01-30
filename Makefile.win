@@ -6,12 +6,12 @@ CC       = gcc.exe
 WINDRES  = windres.exe
 OBJ      = main.o downloader.o fetcher.o helper.o download_backend.o
 LINKOBJ  = main.o downloader.o fetcher.o helper.o download_backend.o
-LIBS     = -L"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib" -L"C:/Program Files (x86)/Dev-Cpp/MinGW64/x86_64-w64-mingw32/lib" -static-libgcc -lgdi32 -lurlmon -luuid -lwininet
-INCS     = -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/9.2.0/include"
-CXXINCS  = -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/9.2.0/include"
+LIBS     = -L"C:/Program Files (x86)/Dev-Cpp/MinGW32_10.0.0_experimental/lib" -L"C:/Program Files (x86)/Dev-Cpp/MinGW32_10.0.0_experimental/i686-w64-mingw32/lib" -static-libgcc -lgdi32  -lurlmon  -lwininet -luuid
+INCS     = -I"C:/Program Files (x86)/Dev-Cpp/MinGW32_10.0.0_experimental/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW32_10.0.0_experimental/i686-w64-mingw32/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW32_10.0.0_experimental/lib/gcc/i686-w64-mingw32/10.0.0/include"
+CXXINCS  = -I"C:/Program Files (x86)/Dev-Cpp/MinGW32_10.0.0_experimental/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW32_10.0.0_experimental/i686-w64-mingw32/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW32_10.0.0_experimental/lib/gcc/i686-w64-mingw32/10.0.0/include"
 BIN      = PokemonSeriesDownloader.exe
-CXXFLAGS = $(CXXINCS) -std=c++17 -pedantic -Wpedantic -DLOCAL -DAduMaster -Wl,--stack,66060288
-CFLAGS   = $(INCS) -std=c++17 -pedantic -Wpedantic -DLOCAL -DAduMaster -Wl,--stack,66060288
+CXXFLAGS = $(CXXINCS) -Ofast -pedantic -std=c++2a -pedantic -Wpedantic -DLOCAL -DAduMaster -Wl,--stack,66060288
+CFLAGS   = $(INCS) -Ofast -pedantic -std=c++2a -pedantic -Wpedantic -DLOCAL -DAduMaster -Wl,--stack,66060288
 RM       = rm.exe -f
 
 .PHONY: all all-before all-after clean clean-custom

@@ -16,9 +16,6 @@
 #include <string>
 #include <vector>
 
-//A macro included before Windows.h, else MinGW will complain.
-#define QUERYCONTEXT void*
-
 #include <Windows.h> //For URLDownloadtoFile
 
 #include "helper.h"
