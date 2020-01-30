@@ -12,11 +12,11 @@ The tool is created to be open to customization, (theoretically) allowing you to
 
 ## How to use:
 
-Compile `Downloader.cpp` with your favorite compiler. (Tested on MinGW64 9.2.0).
+Compile `Downloader.cpp` with your favorite compiler. (Tested on MinGW64 9.2.0 and MinGW32 10.0.0).
 
-The source comes with a `Dev C++` project, so compiling it there is easiest.
+The source comes with a `Dev C++` project, so compiling it using Dev-C++ is the easiest way.
 
-> Note: Be sure to include --std=c++11 (for C++11 standards), and link to libgdi32 and liburlmon.
+> Note: Be sure to include --std=c++11 (for C++11 standards), and link to libgdi32, liburlmon, libwininet, and libuuid. You do **not** need to configure this if you're using the Dev-C++ project included in the source.
 
 Edit `Variables.dat` using `Notepad` or other text editors to change your download links and other information.
 
