@@ -2,3 +2,4 @@
 *.o
 debug
 debug/
+*.bak

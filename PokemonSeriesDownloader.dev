@@ -10,8 +10,8 @@ PrivateResource=
 ResourceIncludes=
 MakeIncludes=
 Compiler=
-CppCompiler=-std=c++2a_@@_
-Linker=-lgdi32 _@@_-lurlmon _@@_-lwininet_@@_-luuid_@@_
+CppCompiler=-std=c++20_@@_
+Linker=-lgdi32 _@@_-lurlmon _@@_-lwininet_@@_-luuid_@@_-static_@@_
 IsCpp=1
 Icon=
 ExeOutput=
@@ -27,8 +27,8 @@ CommandLine=
 Folders=
 IncludeVersionInfo=0
 SupportXPThemes=0
-CompilerSet=7
-CompilerSettings=000000c000001000000000000
+CompilerSet=0
+CompilerSettings=0000000000000000000000000
 UnitCount=9
 
 [VersionInfo]

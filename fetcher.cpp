@@ -32,37 +32,38 @@ extern vector<string> names;
 extern vector<string> direct;
 extern vector<string> data;
 
-string process(string & element)
+string process(string & element, const vector<string> & params)
 {
 	//Site-specific variables, in future releases will be read from
 	//Variables.dat file.
-	static const string link_token = "mp4HD";
-	static const string link_prefix = ":";
-	static const size_t prefix_to_content = 2;
-	static const string link_suffix = "\",";
-	static const size_t suffix_to_content = 0;
+	const string link_token = params[0];
+	const string link_prefix = params[1];
+	const size_t prefix_to_content = link_prefix.size();
+	const string link_suffix = params[2];
+	const size_t suffix_to_content = 0;
 	
 	//Replace stupid fancy HTML escape codes for fancy quotation marks with
 	//normal ones.
-	element = findAndReplaceAll(element, "&#8221;", "\"");
-	element = findAndReplaceAll(element, "&#8243;", "\"");
-	int16_t i = element.find(link_token);
+//	element = findAndReplaceAll(element, "&#8221;", "\"");
+//	element = findAndReplaceAll(element, "&#8243;", "\"");
+	size_t i = element.find(link_token);
 	i = element.find(link_prefix, i);
 	i += prefix_to_content;
-	int16_t j = element.find(link_suffix, i+1);
+	size_t j = element.find(link_suffix, i+1);
 	j -= suffix_to_content;
 	string result = string(element.begin() + i, element.begin() + j);
-	return result; 
+	return decodeURL(result); 
 }
 
 //Finds the HTML element that contains the video.
-string processFile(const string & path)
+string processFile(const string & path, const string & token, const vector<string> & params)
 {
+	cout << "Processing file at " << path << endl; 
 	ifstream fin;
 		fin.open(path.c_str());
 		string current_line;
 		getline(fin, current_line);
-		while (current_line.find("<div class=\"Elite_video_player\"") == -1)
+		while (current_line.find(token) == -1)
 		{
 			getline(fin, current_line);
 			if (fin.eof()) //TODO: implement exception throwing.
@@ -71,7 +72,7 @@ string processFile(const string & path)
 				return "INVALID FILE.";
 			}
 		}
-		string data = process(current_line);
+		string data = process(current_line, params);
 		cout << "Extracted link:\n\n";
 		data = purifyLink(data);
 		cout << data << endl << endl;
@@ -124,17 +125,8 @@ void processIndexPage(const string & pagename, const string & tempfolder)
 			j = i;
 			while (current[j] != '<') ++j;
 			string temp = string(current.begin() + i, current.begin() + j);
-			static int16_t find_colon;
-			find_colon = temp.find(":");
-			if (find_colon != string::npos)
-			{
-				static string replace;
-				replace = "";
-				if (!isspace(temp[find_colon - 1])) replace += ' ';
-				replace += '-';
-				if (!isspace(temp[find_colon + 1])) replace += ' ';
-				temp.replace(temp.begin() + find_colon, temp.begin() + find_colon + 1, replace);
-			}
+			temp = removeIllegalFilenameCharacters(temp);
+			temp = findAndReplaceAll(temp, "  ", " ");
 			while (temp.back() == ' ') temp.pop_back();
 			temp += ".mp4";
 			names.push_back(temp);
@@ -152,11 +144,29 @@ void processIndexPage(const string & pagename, const string & tempfolder)
 		string episodename = ss.str();
 		static const string extension = ".html";
 		cout << episodename << ":\n";
-		episodename += extension;
 		cout << "Fetching data....\n";
-		URLDownloadToFile(nullptr, links[i].c_str(), (tempfolder + episodename).c_str(), 0, nullptr);
+		URLDownloadToFile(nullptr, links[i].c_str(), (tempfolder + episodename + extension).c_str(), 0, nullptr);
 		cout << "Getting direct URL...\n";
-		string directURL = processFile(tempfolder + episodename);
+		string directURL = processFile(tempfolder + episodename + extension, "dailymotion", 
+		{
+			"https://iframespot.blogspot.com/",
+			"url=",
+			"\""
+		});
+		URLDownloadToFile(nullptr, directURL.c_str(), (tempfolder + episodename + "_player" + extension).c_str(), 0, nullptr);
+		directURL = processFile(tempfolder + episodename + "_player" + extension, "x-mpegURL",
+		{
+			"x-mpegURL",
+			"\"url\":\"",
+			"\""
+		});
+		URLDownloadToFile(nullptr, directURL.c_str(), (tempfolder + episodename + "_m3u8" + extension).c_str(), 0, nullptr);
+		directURL = processFile(tempfolder + episodename + "_m3u8" + extension, "RESOLUTION=1280x720",
+		{
+			"PROGRESSIVE-URI=\"",
+			"PROGRESSIVE-URI=\"",
+			"#"
+		});
 		cout << "Done.\n\n";
 		direct.push_back(directURL);
 		if (directURL != "INVALID FILE.") ++count;
