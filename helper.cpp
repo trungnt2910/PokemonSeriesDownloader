@@ -5,6 +5,7 @@
 #include <cctype>
 #include <fstream>
 #include <map>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -15,13 +16,14 @@ using std::ifstream;
 using std::isdigit;
 using std::isspace;
 using std::map;
+using std::stringstream;
 
 string findAndReplaceAll(string data, const string & toSearch, const string & replaceStr)
 {
 	// Get the first occurrence
 	size_t pos = data.find(toSearch);
 	// Repeat till end is reached
-	while(pos != string::npos)
+	while (pos != string::npos)
 	{
 		// Replace this occurrence of Sub String
 		data.replace(pos, toSearch.size(), replaceStr);
@@ -56,7 +58,7 @@ void PrepareDirectory(const string & fullpath)
 
 string purifyLink(string link)
 {
-	for (int16_t i = 0; i<link.size(); ++i)
+	for (std::size_t i = 0; i<link.size(); ++i)
 	{
 		if (link[i] == '\\')
 		{
@@ -76,6 +78,31 @@ string purifyLink(string link)
 		link.pop_back();
 	}
 	return link;
+}
+
+string decodeURL(string link)
+{
+	for (std::size_t i = 0; i < link.size(); ++i)
+	{
+		//Detects '%' character
+		if (link[i] == '%')
+		{
+			//Put encoded value in a stringstream
+			stringstream toEscape(string(link.begin() + i + 1, link.begin() + i + 3));
+			char temp;
+			//Convert it to an int, then put it in temp;
+			toEscape >> std::hex >> (int &)temp;
+			link.replace(i, 3, 1, temp);
+		}
+	}
+	return link;
+}
+
+string removeIllegalFilenameCharacters(string filename)
+{
+	static const string illegalCharacters = "<>:\"/\\|?*";
+	for (const auto & c : illegalCharacters) filename = findAndReplaceAll(filename, string(1, c), "");
+	return filename;
 }
 
 vector<string> GET_VARIABLES()

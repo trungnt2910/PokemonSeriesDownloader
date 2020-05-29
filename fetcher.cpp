@@ -1,12 +1,8 @@
 //fetcher.cpp -- Link extraction functions for PokemonSeriesDownloader
 
-//These functions currently support the old elite-video-player
-//Blissey's husband is using. However, he is known to have been
-//testing with cloudfront streaming (Episode 48). This involves more complicated
-//link fetching as well as using ffmpeg to get valid data from m3u8 files.
-
-//Fetching from cloudfront will be implemented later if Blissey's husband
-//adopt this for his site.
+//Current fetcher supports both the old elite-video-player AND the new
+//Dailymotion videos embedded here, depending on the code written in 
+//variables.dat 
 
 #include "fetcher.h"
 
@@ -19,6 +15,7 @@
 #include <Windows.h> //For URLDownloadtoFile
 
 #include "helper.h"
+#include "variables.h"
 
 //Borrow a few tools from the standard library
 using std::cout;
@@ -32,37 +29,23 @@ extern vector<string> names;
 extern vector<string> direct;
 extern vector<string> data;
 
-string process(string & element)
+string FetcherCommand::operator()(const string & directory, const string & episodeName, string link)
 {
-	//Site-specific variables, in future releases will be read from
-	//Variables.dat file.
-	static const string link_token = "mp4HD";
-	static const string link_prefix = ":";
-	static const size_t prefix_to_content = 2;
-	static const string link_suffix = "\",";
-	static const size_t suffix_to_content = 0;
-	
-	//Replace stupid fancy HTML escape codes for fancy quotation marks with
-	//normal ones.
-	element = findAndReplaceAll(element, "&#8221;", "\"");
-	element = findAndReplaceAll(element, "&#8243;", "\"");
-	int16_t i = element.find(link_token);
-	i = element.find(link_prefix, i);
-	i += prefix_to_content;
-	int16_t j = element.find(link_suffix, i+1);
-	j -= suffix_to_content;
-	string result = string(element.begin() + i, element.begin() + j);
-	return result; 
+	for (const auto & rc : commands)
+	{
+		URLDownloadToFile(nullptr, link.c_str(), (directory + episodeName + rc.fileNameSuffix).c_str(), 0, nullptr);
+		link = processFile(directory + episodeName + rc.fileNameSuffix, rc);
+	}
+	return link;
 }
 
-//Finds the HTML element that contains the video.
-string processFile(const string & path)
+string FetcherCommand::processFile(const string & filePath, const FetchRecord & rc)
 {
 	ifstream fin;
-		fin.open(path.c_str());
+		fin.open(filePath.c_str());
 		string current_line;
 		getline(fin, current_line);
-		while (current_line.find("<div class=\"Elite_video_player\"") == -1)
+		while (current_line.find(rc.elementToken) == std::string::npos)
 		{
 			getline(fin, current_line);
 			if (fin.eof()) //TODO: implement exception throwing.
@@ -71,12 +54,20 @@ string processFile(const string & path)
 				return "INVALID FILE.";
 			}
 		}
-		string data = process(current_line);
-		cout << "Extracted link:\n\n";
+		string data = processElement(current_line, rc);
 		data = purifyLink(data);
-		cout << data << endl << endl;
-		fin.close();
+	fin.close();
 	return data;
+}
+
+string FetcherCommand::processElement(string & element, const FetchRecord & rc)
+{
+	std::size_t i = element.find(rc.linkToken);
+	i = element.find(rc.linkPrefix, i);
+	i += rc.linkPrefix.size();
+	std::size_t j = element.find(rc.linkSuffix, i+1);
+	string result = string(element.begin() + i, element.begin() + j);
+	return decodeURL(result); 
 }
 
 void processIndexPage(const string & pagename, const string & tempfolder)
@@ -92,7 +83,7 @@ void processIndexPage(const string & pagename, const string & tempfolder)
 	{
 		getline(html, current);
 		static int16_t i;
-		i = current.find(data[1]);
+		i = current.find(environment["PREFIX"]);
 		if (i!=string::npos)
 		{
 			++count;
@@ -124,17 +115,8 @@ void processIndexPage(const string & pagename, const string & tempfolder)
 			j = i;
 			while (current[j] != '<') ++j;
 			string temp = string(current.begin() + i, current.begin() + j);
-			static int16_t find_colon;
-			find_colon = temp.find(":");
-			if (find_colon != string::npos)
-			{
-				static string replace;
-				replace = "";
-				if (!isspace(temp[find_colon - 1])) replace += ' ';
-				replace += '-';
-				if (!isspace(temp[find_colon + 1])) replace += ' ';
-				temp.replace(temp.begin() + find_colon, temp.begin() + find_colon + 1, replace);
-			}
+			temp = removeIllegalFilenameCharacters(temp);
+			temp = findAndReplaceAll(temp, "  ", " ");
 			while (temp.back() == ' ') temp.pop_back();
 			temp += ".mp4";
 			names.push_back(temp);
@@ -152,11 +134,11 @@ void processIndexPage(const string & pagename, const string & tempfolder)
 		string episodename = ss.str();
 		static const string extension = ".html";
 		cout << episodename << ":\n";
-		episodename += extension;
 		cout << "Fetching data....\n";
-		URLDownloadToFile(nullptr, links[i].c_str(), (tempfolder + episodename).c_str(), 0, nullptr);
 		cout << "Getting direct URL...\n";
-		string directURL = processFile(tempfolder + episodename);
+		string directURL = environment.getFetcher()(tempfolder, episodename, links[i]);
+		cout << "Extracted link:\n";
+		cout << directURL << endl;
 		cout << "Done.\n\n";
 		direct.push_back(directURL);
 		if (directURL != "INVALID FILE.") ++count;

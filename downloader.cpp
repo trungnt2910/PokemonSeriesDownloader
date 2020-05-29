@@ -9,6 +9,7 @@
 
 #include "download_backend.h"
 #include "helper.h"
+#include "variables.h"
 
 //Borrow a few tools from the standard library
 using std::cin;
@@ -68,7 +69,7 @@ void downloadInterface()
 	cout << "(Blank line to use default download path).\n";
 	string dlpath;
 	getline(cin, dlpath);
-	if (!dlpath.size()) dlpath = data[2];
+	if (!dlpath.size()) dlpath = environment["DOWNLOAD_DIR"];
 	//Creates the directory (instead of throwing an error) if the
 	//download path does not exist.
 	PrepareDirectory(dlpath);
@@ -76,7 +77,7 @@ void downloadInterface()
 	switch (choice)
 	{
 		case 1:
-			count = Download(direct, names, 1, count, dlpath);
+			count = Download(direct, names, 1, names.size() - 1, dlpath);
 			break;
 		case 2:
 			cout << "Enter the first episode in your range: ";

@@ -44,7 +44,7 @@ const char * DownloadError(const HRESULT hr)
 	}
 }
 
-void LoadBar(unsigned curr_val, unsigned max_val, unsigned bar_width = 20)
+void LoadBar(unsigned curr_val, unsigned max_val, double speed, unsigned bar_width = 20)
 {
     if((curr_val != max_val) && (curr_val % (max_val / 100) != 0))
         return;
@@ -52,22 +52,29 @@ void LoadBar(unsigned curr_val, unsigned max_val, unsigned bar_width = 20)
     double   ratio   =  curr_val / (double)max_val;
     unsigned bar_now =  (unsigned)(ratio * bar_width);
 
+	std::ios_base::fmtflags original_flags = std::cout.setf(std::ios_base::fixed);
+	
     cout << ("\r") << std::setw(3) << (unsigned)(ratio * 100.0) << ("% [");
     for(unsigned curr_val = 0; curr_val < bar_now; ++curr_val)
         cout << ("=");
     for(unsigned curr_val = bar_now; curr_val < bar_width; ++curr_val)
         cout << (" ");
-    cout << ("]") << std::flush;
+    cout << ("] ") << speed << " bytes/s         \b\b\b\b\b\b\b\b\b";
+    flush(cout);
+    
+    cout.setf(original_flags);
 }
 
 class CallbackHandler : public IBindStatusCallback
 {
 private:
     int m_percentLast;
+    ULONG m_sizeLast;
+    std::clock_t m_clockLast;
     bool v;
 
 public:
-    CallbackHandler(const bool verbose = false) : m_percentLast(0), v(0)
+    CallbackHandler(const bool verbose = false) : m_percentLast(0), m_sizeLast(0), m_clockLast(std::clock()), v(verbose)
     {
     }
 
@@ -150,17 +157,24 @@ public:
             break;
             case BINDSTATUS_BEGINDOWNLOADDATA:
             	if (v)
-                cout << ("Begin download") << endl;
+                cout	<< ("Begin download") << endl
+                		<< ("Size: ") << ulProgressMax << " bytes." << endl;
             break;
             case BINDSTATUS_DOWNLOADINGDATA:
             case BINDSTATUS_ENDDOWNLOADDATA:
             {
                 int percent = (int)(100.0 * static_cast<double>(ulProgress)
                                 / static_cast<double>(ulProgressMax));
-                if(m_percentLast < percent)
+                std::clock_t currentClock = std::clock();
+                double time = (static_cast<double>(currentClock) - static_cast<double>(m_clockLast)) / CLOCKS_PER_SEC;
+                ULONG data = ulProgress - m_sizeLast;
+                double speed = data / time;
+                if (time >= 1)
                 {
-                    LoadBar(percent, 100);
+                    LoadBar(percent, 100, speed);
                     m_percentLast = percent;
+                    m_clockLast = currentClock;
+                    m_sizeLast = ulProgress;
                 }
                 if(ulStatusCode == BINDSTATUS_ENDDOWNLOADDATA)
                 {

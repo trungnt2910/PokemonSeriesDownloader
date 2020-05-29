@@ -2,3 +2,5 @@
 *.o
 debug
 debug/
+*.bak
+*.layout

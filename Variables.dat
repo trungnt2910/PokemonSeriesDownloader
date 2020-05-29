@@ -1,9 +1,10 @@
-#Sample Variables.dat configuration for Blisseys's Husband page.
+#Sample Variables.dat configuration for Blissey's Husband page.
 #Created by AduMaster++, 6:44PM 29/01/2020
 
 # Enter the index page of the Pokemon site here.
 
-INDEX_PAGE=https://blisseyhusband.in/pokemon-the-series-sun-moon-ultra-legends/
+#Sword and shield babe!!
+INDEX_PAGE=https://blisseyhusband.in/pokemon-the-series-sun-moon-ultra-legends/pokemon-sword-and-pokemon-shield/
 
 #Enter the prefix of the URL of each episode here.
 #Example: Episode url: example.com/episode-1-some-name
@@ -16,3 +17,20 @@ PREFIX=https://blisseyhusband.in/
 #In future versions the app will also check this path for missing episodes in Update Mode.
 
 DOWNLOAD_DIR=C:\Pokemon
+
+#Number of layers the downloader has to process
+#For older versions, the link is contained directly in the web site.
+#However, Blissey's Husband now uses Dailymotion streaming page, which requires fetching
+#the link three times before getting the direct episode link.
+
+FETCH_LAYERS=3
+
+#Code your own fetch code:
+#Base HTML file:
+FETCH_COMMAND+=FETCH("","dailymotion","https://iframespot.blogspot.com/","&url=","\"")
+
+#Embedded player:
+FETCH_COMMAND+=FETCH("_player","x-mpegURL","x-mpegURL","\"url\":\"","\"")
+
+#m3u8 file
+FETCH_COMMAND+=FETCH("_m3u8","RESOLUTION=1280x720","PROGRESSIVE-URI=\"","PROGRESSIVE-URI=\"","#")

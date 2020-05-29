@@ -7,6 +7,7 @@
 #include "downloader.h"
 #include "fetcher.h"
 #include "helper.h"
+#include "variables.h"
 
 //Borrow a few tools from the standard library
 using std::cin;
@@ -17,7 +18,6 @@ using std::vector;
 vector<string> links(0);
 vector<string> names(0);
 vector<string> direct(0);
-vector<string> data = GET_VARIABLES();
 
 int main(int argc, char** argv) 
 {
@@ -26,7 +26,7 @@ int main(int argc, char** argv)
 	string appdata = getenv("APPDATA");
 	string tempfolder = appdata + "\\PokemonDownloader\\";
 	string filename = "page.html";
-	string homepage = data[0];
+	string homepage = environment["INDEX_PAGE"];
 
 	system((string("rd /S /Q ") + tempfolder).c_str()); //Cleans up the old directory.
 
