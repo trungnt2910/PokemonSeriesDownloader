@@ -4,8 +4,8 @@
 CPP      = g++.exe
 CC       = gcc.exe
 WINDRES  = windres.exe
-OBJ      = main.o downloader.o fetcher.o helper.o download_backend.o variables.o
-LINKOBJ  = main.o downloader.o fetcher.o helper.o download_backend.o variables.o
+OBJ      = main.o downloader.o fetcher.o helper.o download_backend.o variables.o stringtransformer.o
+LINKOBJ  = main.o downloader.o fetcher.o helper.o download_backend.o variables.o stringtransformer.o
 LIBS     = -L"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib" -L"C:/Program Files (x86)/Dev-Cpp/MinGW64/x86_64-w64-mingw32/lib" -static-libgcc -lgdi32  -lurlmon  -lwininet -luuid -static
 INCS     = -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/10.1.0/include"
 CXXINCS  = -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"C:/Program Files (x86)/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/10.1.0/include"
@@ -41,3 +41,6 @@ download_backend.o: download_backend.cpp
 
 variables.o: variables.cpp
 	$(CPP) -c variables.cpp -o variables.o $(CXXFLAGS)
+
+stringtransformer.o: stringtransformer.cpp
+	$(CPP) -c stringtransformer.cpp -o stringtransformer.o $(CXXFLAGS)

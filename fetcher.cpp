@@ -15,9 +15,11 @@
 #include <Windows.h> //For URLDownloadtoFile
 
 #include "helper.h"
+#include "stringtransformer.h"
 #include "variables.h"
 
 //Borrow a few tools from the standard library
+using std::cerr;
 using std::cout;
 using std::endl;
 using std::ifstream;
@@ -35,6 +37,7 @@ string FetcherCommand::operator()(const string & directory, const string & episo
 	{
 		URLDownloadToFile(nullptr, link.c_str(), (directory + episodeName + rc.fileNameSuffix).c_str(), 0, nullptr);
 		link = processFile(directory + episodeName + rc.fileNameSuffix, rc);
+		if (link == "INVALID FILE") break;
 	}
 	return link;
 }
@@ -50,12 +53,13 @@ string FetcherCommand::processFile(const string & filePath, const FetchRecord & 
 			getline(fin, current_line);
 			if (fin.eof()) //TODO: implement exception throwing.
 			{
-				cout << "Failed to get link.\n";
+				cerr << "Failed to get link.\n";
 				return "INVALID FILE.";
 			}
 		}
 		string data = processElement(current_line, rc);
-		data = purifyLink(data);
+//		data = Transform.apply(data, "purifyURL", "escapeURL");
+		data = Transform["purifyURL"]["escapeURL"](data);
 	fin.close();
 	return data;
 }
@@ -67,7 +71,7 @@ string FetcherCommand::processElement(string & element, const FetchRecord & rc)
 	i += rc.linkPrefix.size();
 	std::size_t j = element.find(rc.linkSuffix, i+1);
 	string result = string(element.begin() + i, element.begin() + j);
-	return decodeURL(result); 
+	return result; 
 }
 
 void processIndexPage(const string & pagename, const string & tempfolder)
@@ -115,8 +119,7 @@ void processIndexPage(const string & pagename, const string & tempfolder)
 			j = i;
 			while (current[j] != '<') ++j;
 			string temp = string(current.begin() + i, current.begin() + j);
-			temp = removeIllegalFilenameCharacters(temp);
-			temp = findAndReplaceAll(temp, "  ", " ");
+			temp = Transform["RemoveIllegalFilenameCharacters"]["FindAndReplaceAll"](temp, "  ", " ");
 			while (temp.back() == ' ') temp.pop_back();
 			temp += ".mp4";
 			names.push_back(temp);

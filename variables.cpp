@@ -7,6 +7,7 @@
 
 #include "fetcher.h"
 #include "helper.h"
+#include "stringtransformer.h"
 
 using std::ifstream;
 using std::string;
@@ -80,14 +81,19 @@ Variables::Variables()
 							{
 								y = flag_data.find("\"", y + 1);
 							}
-							params.push_back(string(flag_data.begin() + x + 1, flag_data.begin() + y));
-							params.back() = findAndReplaceAll(params.back(), "\\\"", "\"");
-							params.back() = findAndReplaceAll(params.back(), "\\\\", "\\");
+							//We'll process all characters between x and y, as they're an argument
+							//Strings in Variables.dat are written as C-style strings, so they should support
+							//escape characters such as '\n' or '\"'
+							params.push_back(
+								Transform["Escape"]
+									(string(flag_data.begin() + x + 1, flag_data.begin() + y))
+							);
 							x = y;
 						}
 					}
 					
 					while (params.size() < 5) params.push_back("");
+					
 					fetch.addCommand(params[0], params[1], params[2], params[3], params[4]);
 				break;
 			}
